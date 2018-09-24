@@ -8,6 +8,10 @@ class Main extends React.Component {
     this.props.dispatch(fetchWeather());
   }
 
+  onReloadLocation () {
+    this.props.dispatch(logoutUser());
+  }
+
   render () {
     let { weather } = this.props;
     const title = weather.name ? 'Погода в ' + weather.name : '';
@@ -55,6 +59,7 @@ class Main extends React.Component {
             </div>
           )
         }
+        <button onClick={() => this.onReloadLocation()}>Обновить геопозицию</button>
       </div>
     )
   }

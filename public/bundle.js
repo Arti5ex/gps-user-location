@@ -35997,6 +35997,10 @@ var _weatherSaga = __webpack_require__(399);
 
 var _weatherSaga2 = _interopRequireDefault(_weatherSaga);
 
+var _locationSaga = __webpack_require__(408);
+
+var _locationSaga2 = _interopRequireDefault(_locationSaga);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var _marked = /*#__PURE__*/regeneratorRuntime.mark(root);
@@ -36007,7 +36011,7 @@ function root() {
       switch (_context.prev = _context.next) {
         case 0:
           _context.next = 2;
-          return (0, _effects.all)([(0, _effects.fork)(_weatherSaga2.default)]);
+          return (0, _effects.all)([(0, _effects.fork)(_weatherSaga2.default), (0, _effects.fork)(_locationSaga2.default)]);
 
         case 2:
         case 'end':
@@ -36034,10 +36038,8 @@ var _effects = __webpack_require__(103);
 var _api = __webpack_require__(400);
 
 var _marked = /*#__PURE__*/regeneratorRuntime.mark(getWeather),
-    _marked2 = /*#__PURE__*/regeneratorRuntime.mark(setWeather),
-    _marked3 = /*#__PURE__*/regeneratorRuntime.mark(getWatcher),
-    _marked4 = /*#__PURE__*/regeneratorRuntime.mark(setWatcher),
-    _marked5 = /*#__PURE__*/regeneratorRuntime.mark(weatherSagas);
+    _marked2 = /*#__PURE__*/regeneratorRuntime.mark(getWatcher),
+    _marked3 = /*#__PURE__*/regeneratorRuntime.mark(weatherSagas);
 
 var getCoords = function getCoords() {
   return new Promise(function (resolve) {
@@ -36121,55 +36123,29 @@ function getWeather() {
   }, _marked, this, [[0, 23]]);
 }
 
-function setWeather(action) {
-  var weather, weathers;
-  return regeneratorRuntime.wrap(function setWeather$(_context2) {
+function getWatcher() {
+  return regeneratorRuntime.wrap(function getWatcher$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
-          _context2.prev = 0;
-          weather = void 0;
-          weathers = [{ "id": 1, "name": "Stark", "password": "123123" }, { "id": 2, "name": "Batman", "password": "123123" }];
+          _context2.next = 2;
+          return (0, _effects.takeEvery)("WEATHER_FETCH", getWeather);
 
-
-          weathers.forEach(function (item) {
-            if (item.name === action.payload.name && item.password === action.payload.password) {
-              weather = item;
-            }
-          });
-
-          if (weather) {
-            localStorage.setItem("weather", JSON.stringify(weather));
-          }
-
-          _context2.next = 7;
-          return (0, _effects.put)({ type: "weather_SET_SUCCEEDED", payload: weather });
-
-        case 7:
-          _context2.next = 13;
-          break;
-
-        case 9:
-          _context2.prev = 9;
-          _context2.t0 = _context2['catch'](0);
-          _context2.next = 13;
-          return (0, _effects.put)({ type: "WEATHER_SET_FAILED", message: _context2.t0.message });
-
-        case 13:
+        case 2:
         case 'end':
           return _context2.stop();
       }
     }
-  }, _marked2, this, [[0, 9]]);
+  }, _marked2, this);
 }
 
-function getWatcher() {
-  return regeneratorRuntime.wrap(function getWatcher$(_context3) {
+function weatherSagas() {
+  return regeneratorRuntime.wrap(function weatherSagas$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
           _context3.next = 2;
-          return (0, _effects.takeEvery)("WEATHER_FETCH", getWeather);
+          return (0, _effects.all)([(0, _effects.fork)(getWatcher)]);
 
         case 2:
         case 'end':
@@ -36177,38 +36153,6 @@ function getWatcher() {
       }
     }
   }, _marked3, this);
-}
-
-function setWatcher() {
-  return regeneratorRuntime.wrap(function setWatcher$(_context4) {
-    while (1) {
-      switch (_context4.prev = _context4.next) {
-        case 0:
-          _context4.next = 2;
-          return (0, _effects.takeEvery)("WEATHER_SET", setWeather);
-
-        case 2:
-        case 'end':
-          return _context4.stop();
-      }
-    }
-  }, _marked4, this);
-}
-
-function weatherSagas() {
-  return regeneratorRuntime.wrap(function weatherSagas$(_context5) {
-    while (1) {
-      switch (_context5.prev = _context5.next) {
-        case 0:
-          _context5.next = 2;
-          return (0, _effects.all)([(0, _effects.fork)(getWatcher), (0, _effects.fork)(setWatcher)]);
-
-        case 2:
-        case 'end':
-          return _context5.stop();
-      }
-    }
-  }, _marked5, this);
 }
 
 /***/ }),
@@ -36279,8 +36223,15 @@ var Main = function (_React$Component) {
       this.props.dispatch((0, _weatherActions.fetchWeather)());
     }
   }, {
+    key: 'onReloadLocation',
+    value: function onReloadLocation() {
+      this.props.dispatch(logoutUser());
+    }
+  }, {
     key: 'render',
     value: function render() {
+      var _this2 = this;
+
       var weather = this.props.weather;
 
       var title = weather.name ? 'Погода в ' + weather.name : '';
@@ -36341,6 +36292,13 @@ var Main = function (_React$Component) {
               weather.main.pressure
             )
           )
+        ),
+        _react2.default.createElement(
+          'button',
+          { onClick: function onClick() {
+              return _this2.onReloadLocation();
+            } },
+          '\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C \u0433\u0435\u043E\u043F\u043E\u0437\u0438\u0446\u0438\u044E'
         )
       );
     }
@@ -36368,18 +36326,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.fetchWeather = fetchWeather;
-exports.removeTransaction = removeTransaction;
-exports.addTransaction = addTransaction;
 function fetchWeather() {
   return { type: 'WEATHER_FETCH', _: '' };
-}
-
-function removeTransaction(transitionId) {
-  return { type: 'TRANSACTION_DELETE', data: transitionId };
-}
-
-function addTransaction(transition) {
-  return { type: 'TRANSACTION_ADD', data: transition };
 }
 
 /***/ }),
@@ -36387,6 +36335,136 @@ function addTransaction(transition) {
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 404 */,
+/* 405 */,
+/* 406 */,
+/* 407 */,
+/* 408 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = weatherSagas;
+
+var _effects = __webpack_require__(103);
+
+var _marked = /*#__PURE__*/regeneratorRuntime.mark(getLocation),
+    _marked2 = /*#__PURE__*/regeneratorRuntime.mark(setLocation),
+    _marked3 = /*#__PURE__*/regeneratorRuntime.mark(getWatcher),
+    _marked4 = /*#__PURE__*/regeneratorRuntime.mark(setWatcher),
+    _marked5 = /*#__PURE__*/regeneratorRuntime.mark(weatherSagas);
+
+var getCoords = function getCoords() {
+  return new Promise(function (resolve) {
+    navigator.geolocation.getCurrentPosition(function (position) {
+      return resolve(position);
+    });
+  });
+};
+
+function getLocation() {
+  return regeneratorRuntime.wrap(function getLocation$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          _context.prev = 0;
+          _context.next = 8;
+          break;
+
+        case 3:
+          _context.prev = 3;
+          _context.t0 = _context["catch"](0);
+
+          console.error(_context.t0.message);
+          _context.next = 8;
+          return (0, _effects.put)({ type: "LOCATION_GET_FAILED" });
+
+        case 8:
+        case "end":
+          return _context.stop();
+      }
+    }
+  }, _marked, this, [[0, 3]]);
+}
+
+function setLocation() {
+  return regeneratorRuntime.wrap(function setLocation$(_context2) {
+    while (1) {
+      switch (_context2.prev = _context2.next) {
+        case 0:
+          _context2.prev = 0;
+          _context2.next = 8;
+          break;
+
+        case 3:
+          _context2.prev = 3;
+          _context2.t0 = _context2["catch"](0);
+
+          console.error(_context2.t0.message);
+          _context2.next = 8;
+          return (0, _effects.put)({ type: "LOCATION_SET_FAILED" });
+
+        case 8:
+        case "end":
+          return _context2.stop();
+      }
+    }
+  }, _marked2, this, [[0, 3]]);
+}
+
+function getWatcher() {
+  return regeneratorRuntime.wrap(function getWatcher$(_context3) {
+    while (1) {
+      switch (_context3.prev = _context3.next) {
+        case 0:
+          _context3.next = 2;
+          return (0, _effects.takeEvery)("LOCATION_GET", getLocation);
+
+        case 2:
+        case "end":
+          return _context3.stop();
+      }
+    }
+  }, _marked3, this);
+}
+
+function setWatcher() {
+  return regeneratorRuntime.wrap(function setWatcher$(_context4) {
+    while (1) {
+      switch (_context4.prev = _context4.next) {
+        case 0:
+          _context4.next = 2;
+          return (0, _effects.takeEvery)("LOCATION_SET", setLocation);
+
+        case 2:
+        case "end":
+          return _context4.stop();
+      }
+    }
+  }, _marked4, this);
+}
+
+function weatherSagas() {
+  return regeneratorRuntime.wrap(function weatherSagas$(_context5) {
+    while (1) {
+      switch (_context5.prev = _context5.next) {
+        case 0:
+          _context5.next = 2;
+          return (0, _effects.all)([(0, _effects.fork)(getWatcher), (0, _effects.fork)(setWatcher)]);
+
+        case 2:
+        case "end":
+          return _context5.stop();
+      }
+    }
+  }, _marked5, this);
+}
 
 /***/ })
 /******/ ]);
