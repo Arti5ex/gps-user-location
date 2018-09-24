@@ -36041,14 +36041,6 @@ var _marked = /*#__PURE__*/regeneratorRuntime.mark(getWeather),
     _marked2 = /*#__PURE__*/regeneratorRuntime.mark(getWatcher),
     _marked3 = /*#__PURE__*/regeneratorRuntime.mark(weatherSagas);
 
-var getCoords = function getCoords() {
-  return new Promise(function (resolve) {
-    navigator.geolocation.getCurrentPosition(function (position) {
-      return resolve(position);
-    });
-  });
-};
-
 var requestWeatherSuccess = function requestWeatherSuccess(data) {
   return { type: 'WEATHER_FETCH_SUCCEEDED', payload: data };
 };
@@ -36064,63 +36056,39 @@ function getWeather() {
           coords = localStorage.getItem("coords");
 
           if (!(coords && JSON.parse(coords).length > 0)) {
-            _context.next = 7;
+            _context.next = 10;
             break;
           }
 
           result = JSON.parse(coords);
-          _context.next = 16;
-          break;
-
-        case 7:
-          if (!navigator.geolocation) {
-            _context.next = 15;
-            break;
-          }
-
-          _context.next = 10;
-          return (0, _effects.call)(getCoords);
-
-        case 10:
-          result = _context.sent;
-
-          result = [result.coords.latitude, result.coords.longitude];
-          localStorage.setItem("coords", JSON.stringify(result));
-          _context.next = 16;
-          break;
-
-        case 15:
-          console.error("Geolocation is not supported by this browser.");
-
-        case 16:
-          _context.next = 18;
+          _context.next = 7;
           return (0, _effects.call)(function () {
             return (0, _api.fetchWeather)(result[0], result[1]);
           });
 
-        case 18:
+        case 7:
           data = _context.sent;
-          _context.next = 21;
+          _context.next = 10;
           return (0, _effects.put)(requestWeatherSuccess(data));
 
-        case 21:
-          _context.next = 28;
+        case 10:
+          _context.next = 17;
           break;
 
-        case 23:
-          _context.prev = 23;
+        case 12:
+          _context.prev = 12;
           _context.t0 = _context['catch'](0);
 
           console.error(_context.t0.message);
-          _context.next = 28;
+          _context.next = 17;
           return (0, _effects.put)({ type: "WEATHER_SET_FAILED" });
 
-        case 28:
+        case 17:
         case 'end':
           return _context.stop();
       }
     }
-  }, _marked, this, [[0, 23]]);
+  }, _marked, this, [[0, 12]]);
 }
 
 function getWatcher() {
@@ -36200,6 +36168,8 @@ var _reactRedux = __webpack_require__(139);
 
 var _weatherActions = __webpack_require__(402);
 
+var _locationActions = __webpack_require__(409);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -36220,12 +36190,14 @@ var Main = function (_React$Component) {
   _createClass(Main, [{
     key: 'componentWillMount',
     value: function componentWillMount() {
+      this.props.dispatch((0, _locationActions.getLocation)());
       this.props.dispatch((0, _weatherActions.fetchWeather)());
     }
   }, {
     key: 'onReloadLocation',
     value: function onReloadLocation() {
-      this.props.dispatch(logoutUser());
+      this.props.dispatch((0, _locationActions.reloadLocation)());
+      this.props.dispatch((0, _weatherActions.fetchWeather)());
     }
   }, {
     key: 'render',
@@ -36369,53 +36341,89 @@ var getCoords = function getCoords() {
 };
 
 function getLocation() {
+  var coords;
   return regeneratorRuntime.wrap(function getLocation$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
           _context.prev = 0;
+          coords = localStorage.getItem("coords");
+
+          if (!(coords && JSON.parse(coords).length > 0)) {
+            _context.next = 6;
+            break;
+          }
+
+          return _context.abrupt("return", JSON.parse(coords));
+
+        case 6:
           _context.next = 8;
+          return (0, _effects.put)({ type: "LOCATION_SET" });
+
+        case 8:
+          _context.next = 15;
           break;
 
-        case 3:
-          _context.prev = 3;
+        case 10:
+          _context.prev = 10;
           _context.t0 = _context["catch"](0);
 
           console.error(_context.t0.message);
-          _context.next = 8;
+          _context.next = 15;
           return (0, _effects.put)({ type: "LOCATION_GET_FAILED" });
 
-        case 8:
+        case 15:
         case "end":
           return _context.stop();
       }
     }
-  }, _marked, this, [[0, 3]]);
+  }, _marked, this, [[0, 10]]);
 }
 
 function setLocation() {
+  var result;
   return regeneratorRuntime.wrap(function setLocation$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
           _context2.prev = 0;
-          _context2.next = 8;
+
+          if (!navigator.geolocation) {
+            _context2.next = 10;
+            break;
+          }
+
+          _context2.next = 4;
+          return (0, _effects.call)(getCoords);
+
+        case 4:
+          result = _context2.sent;
+
+          result = [result.coords.latitude, result.coords.longitude];
+          localStorage.setItem("coords", JSON.stringify(result));
+          return _context2.abrupt("return", result);
+
+        case 10:
+          console.error("Geolocation is not supported by this browser.");
+
+        case 11:
+          _context2.next = 18;
           break;
 
-        case 3:
-          _context2.prev = 3;
+        case 13:
+          _context2.prev = 13;
           _context2.t0 = _context2["catch"](0);
 
           console.error(_context2.t0.message);
-          _context2.next = 8;
+          _context2.next = 18;
           return (0, _effects.put)({ type: "LOCATION_SET_FAILED" });
 
-        case 8:
+        case 18:
         case "end":
           return _context2.stop();
       }
     }
-  }, _marked2, this, [[0, 3]]);
+  }, _marked2, this, [[0, 13]]);
 }
 
 function getWatcher() {
@@ -36464,6 +36472,26 @@ function weatherSagas() {
       }
     }
   }, _marked5, this);
+}
+
+/***/ }),
+/* 409 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.reloadLocation = reloadLocation;
+exports.getLocation = getLocation;
+function reloadLocation() {
+  return { type: 'LOCATION_SET', _: '' };
+}
+
+function getLocation() {
+  return { type: 'LOCATION_GET', _: '' };
 }
 
 /***/ })

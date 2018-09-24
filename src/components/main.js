@@ -2,14 +2,17 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { fetchWeather } from "../actions/weatherActions";
+import { reloadLocation, getLocation } from "../actions/locationActions";
 
 class Main extends React.Component {
   componentWillMount () {
+    this.props.dispatch(getLocation());
     this.props.dispatch(fetchWeather());
   }
 
   onReloadLocation () {
-    this.props.dispatch(logoutUser());
+    this.props.dispatch(reloadLocation());
+    this.props.dispatch(fetchWeather());
   }
 
   render () {

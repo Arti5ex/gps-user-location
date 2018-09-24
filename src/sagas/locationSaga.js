@@ -9,6 +9,12 @@ const getCoords = () => {
 
 function* getLocation() {
   try {
+    const coords = localStorage.getItem("coords");
+    if(coords && JSON.parse(coords).length > 0) {
+      return JSON.parse(coords);
+    } else {
+      yield put({type: "LOCATION_SET"});
+    }
   } catch (e) {
     console.error(e.message);
     yield put({type: "LOCATION_GET_FAILED"});
@@ -17,8 +23,16 @@ function* getLocation() {
 
 function* setLocation() {
   try {
+    if (navigator.geolocation) {
+      let result = yield call(getCoords);
+      result = [result.coords.latitude, result.coords.longitude];
+      localStorage.setItem("coords", JSON.stringify(result));
+      return result;
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
   } catch (e) {
-    console.error(e.message);
+    console.error(e.message); 
     yield put({type: "LOCATION_SET_FAILED"});
   }
 }
